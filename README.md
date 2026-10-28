@@ -16,7 +16,7 @@ and modify the result.
 
 ## What we're looking for
 
-- A reproducible scaffold and a clear project structure.
+- A clean extension of the starter and a clear project structure.
 - Deliberate architecture: server vs UI state, a typed API layer, form
   validation, and theming.
 - A transfer flow that works end-to-end, including honest loading/error states.
@@ -49,7 +49,8 @@ structure** — add your own components, features, and tests.
    error cases, and MSW setup.
 3. [`wireframes/wireframe.md`](wireframes/wireframe.md) — layout only. This is
    intentionally low-fidelity; it is not a visual design.
-4. [`brief/design-tokens.css`](brief/design-tokens.css) — copy these tokens.
+4. [`brief/design-tokens.css`](brief/design-tokens.css) — tokens (already
+   imported in `src/index.css`).
 5. [`mock-api/README.md`](mock-api/README.md) — the mock API and error hooks.
 6. [`DEPLOYMENT.md`](DEPLOYMENT.md) — Netlify/Vercel/Cloudflare settings and
    MSW deployment gotchas.

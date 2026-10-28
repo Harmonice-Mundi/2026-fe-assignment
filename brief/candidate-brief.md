@@ -160,8 +160,8 @@ behaviour.
 
 ### 4.2 Design tokens
 
-Copy [`design-tokens.css`](design-tokens.css) into the app and set the theme on
-the document element:
+The starter imports [`design-tokens.css`](design-tokens.css) in `src/index.css`.
+Set the theme on the document element:
 
 ```html
 <html data-theme="dark" data-segment="premium">
