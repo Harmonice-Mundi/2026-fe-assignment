@@ -1,13 +1,14 @@
 # Mock API contract
 
-Base URL: `http://localhost:4010/api`
+Base URL in the app: `/api` (intercepted by MSW). The optional Node server
+listens at `http://localhost:4010/api`.
 
 The same contract is implemented twice, with identical behaviour:
 
 | Implementation | File | Use |
 | --- | --- | --- |
-| Node server (zero dependencies) | `mock-api/server.mjs` | Local dev, `curl`, debugging |
-| MSW handlers | `mock-api/handlers.ts` | Browser dev **and deployed demos**, tests |
+| MSW handlers | `mock-api/handlers.ts` (re-exported by `src/mocks/handlers.ts`) | Browser dev **and deployed demos**, tests |
+| Node server (zero dependencies) | `mock-api/server.mjs` | Optional `curl` debugging |
 
 Both are seeded from `mock-api/db.json`. State lives in memory and resets when
 the server restarts / the page reloads. There is a reset endpoint for tests.
@@ -391,22 +392,35 @@ the main UI.
 
 ## Setup
 
-### Option A — Node mock server + Vite proxy (fastest for local dev)
+The starter is already wired. `npm install && npm run dev` starts Vite and MSW.
+
+| Piece | File |
+| --- | --- |
+| Shared handlers + seed | `mock-api/handlers.ts`, `mock-api/db.json` |
+| App re-export | `src/mocks/handlers.ts` |
+| Worker | `src/mocks/browser.ts` |
+| Worker startup | `src/main.tsx` |
+| Service worker | `public/mockServiceWorker.js` |
+| Typed fetch | `src/api/client.ts` |
+
+`src/api/client.ts` calls `${import.meta.env.BASE_URL}api/...`, so the same code
+works at `/` and under a sub-path. The worker starts before render; if it fails,
+the app still renders and the health check shows `not connected`.
+
+If you rebuild the MSW setup from scratch: `npm i -D msw`,
+`npx msw init public/ --save`, create the worker, and await `worker.start()`
+before the first fetch.
+
+### Optional: Node server for curl
 
 ```bash
-node mock-api/server.mjs
+npm run mock
 # [mock-api] listening on http://localhost:4010
 ```
 
 ```ts
 // vite.config.ts
-import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
-
-export default defineConfig({
-  plugins: [react()],
-  server: { proxy: { '/api': 'http://localhost:4010' } },
-})
+server: { proxy: { '/api': 'http://localhost:4010' } }
 ```
 
 Smoke test:
@@ -418,62 +432,13 @@ curl -X POST http://localhost:4010/api/transfers \
   -d '{"fromAccountId":"acc_checking","payeeId":"pay_001","amount":1}'
 ```
 
-### Option B — MSW in the browser (required for a static deployment)
-
-MSW intercepts `fetch` in the browser, works in dev and on Netlify / Vercel /
-GitHub Pages, and the same handlers run in Vitest.
-
-```bash
-npm i -D msw
-npx msw init public/ --save
-mkdir -p src/mocks
-cp mock-api/handlers.ts mock-api/db.json src/mocks/
-```
-
-```ts
-// src/mocks/browser.ts
-import { setupWorker } from 'msw/browser'
-import { handlers } from './handlers'
-
-export const worker = setupWorker(...handlers)
-```
-
-```tsx
-// src/main.tsx
-import { StrictMode } from 'react'
-import { createRoot } from 'react-dom/client'
-import App from './App'
-
-async function enableMocking() {
-  const { worker } = await import('./mocks/browser')
-  await worker.start({
-    onUnhandledRequest: 'bypass',
-    serviceWorker: { url: `${import.meta.env.BASE_URL}mockServiceWorker.js` },
-  })
-}
-
-enableMocking().then(() => {
-  createRoot(document.getElementById('root')!).render(
-    <StrictMode>
-      <App />
-    </StrictMode>,
-  )
-})
-```
-
-Notes:
-
-- `handlers.ts` imports `./db.json` — keep them in the same folder.
-- If your `tsconfig` doesn't already include JSON imports, add
-  `"resolveJsonModule": true` to `compilerOptions` (some Vite templates leave it
-  out, which breaks `tsc -b`).
-- MSW requires HTTPS (Netlify/Vercel/Cloudflare/GitHub Pages all provide it).
-- For GitHub Pages, set `base` in `vite.config.ts` and the service worker URL
-  above handles the sub-path.
-- MSW state is in memory; a refresh resets balances to the seed. That is fine
-  for a demo. `POST /api/__reset` is available for tests.
+The deployed app must use MSW, not this server. See
+[`DEPLOYMENT.md`](../DEPLOYMENT.md).
 
 ### Tests
+
+The starter includes `src/test/setup.ts` with MSW's Node server. It resets the
+seed before every test:
 
 ```ts
 // src/test/setup.ts
@@ -490,21 +455,34 @@ afterEach(() => server.resetHandlers())
 afterAll(() => server.close())
 ```
 
-Override a response inside a test:
+Override a response inside a test (adjust the import path to your test file):
 
 ```ts
 import { http, HttpResponse } from 'msw'
-import { server } from '@/test/setup'
+import { server } from './test/setup'
 
 server.use(
   http.get('/api/accounts', () =>
-    HttpResponse.json({ error: { code: 'INTERNAL_ERROR', message: 'Down' } }, { status: 500 }),
+    HttpResponse.json(
+      { error: { code: 'INTERNAL_ERROR', message: 'Down' } },
+      { status: 500 },
+    ),
   ),
 )
 ```
 
 Remember to `resetMockDb()` between tests, otherwise transfers mutate the seed
 for later tests.
+
+MSW notes:
+
+- `mock-api/handlers.ts` imports `./db.json`; keep the two together.
+- The starter's `tsconfig.json` already enables `resolveJsonModule`.
+- MSW requires HTTPS (or `localhost`) for the browser worker.
+- For a sub-path deployment, Vite `base` and the worker URL must match
+  (`import.meta.env.BASE_URL` handles both in the starter).
+- MSW state is in memory; a refresh resets balances to the seed. That is fine
+  for a demo. `POST /api/__reset` is available for tests.
 
 ---
 

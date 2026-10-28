@@ -3,7 +3,7 @@
 **Role:** Frontend Developer
 **Timebox:** 2–3 hours of focused work (hard cap: 3 hours)
 **Stack:** React + TypeScript + Vite
-**Deliverable:** one deployed, single-page app + public repo + README
+**Deliverable:** one deployed, single-page app + repo (private recommended) + README
 
 ---
 
@@ -17,7 +17,7 @@ transfer flow that sends money to a payee.
 Everything is client-side against a provided mock API. There is no auth, no real
 backend, and **no second page**.
 
-> **What we care about most:** how you scaffold and structure the project, the
+> **What we care about most:** how you structure and extend the starter, the
 > architecture and implementation decisions behind it, and a transfer flow that
 > works end-to-end. Honest loading/error/empty states matter too. Visual polish
 > is welcome, but a clean, complete flow beats a beautiful half-flow.
@@ -221,38 +221,40 @@ Dates: `18 Oct` (en-SG, day + short month).
 The full contract — endpoints, payloads, error codes, validation rules — is in
 [`api-contract.md`](api-contract.md). Read it before you start.
 
-- The mock API runs on `http://localhost:4010` (`node mock-api/server.mjs`) and
-  is also provided as **MSW handlers** for the browser.
+- The starter runs **MSW in the browser**. It starts before the app renders, so
+  `/api/...` works immediately with `npm run dev`.
+- The handlers live in `mock-api/handlers.ts`; `src/mocks/handlers.ts`
+  re-exports them, so the browser, the optional Node server, and tests share one
+  contract and one seed file.
+- A Node copy is available for `curl` debugging: `npm run mock`
+  (`http://localhost:4010`). You do **not** need it for the app.
 - Responses are delayed ~500 ms so loading states are visible.
-- Server state is in memory and **resets when the server restarts**.
+- State is in memory and **resets on refresh / server restart**. That is
+  expected.
 - Error hooks: `?scenario=error`, `?scenario=empty`, a note containing
   `#fail`, and `?delay=1500`. These are for demoing states, not for normal use.
-- **Use MSW for the deployed build.** Static hosts can't proxy to
-  `localhost`; the provided handlers make the demo work end-to-end. Setup is in
-  the contract.
+- **Use MSW for the deployed build.** Static hosts can't proxy to `localhost`;
+  the included handlers make the demo work end-to-end. See
+  [`DEPLOYMENT.md`](../DEPLOYMENT.md) for platform settings and MSW gotchas.
 - Don't change the seed data or the contract to make your UI pass. Override
   responses inside tests instead.
 
-### Recommended setup
+### Starter responsibilities
+
+The starter already includes and configures Vite, React, TypeScript, TanStack
+Query, React Hook Form, Zod, MSW, Vitest, Testing Library, and the design tokens.
+It also provides a typed `apiFetch` helper and API types. Node 22 is recommended
+(`.nvmrc`). Run:
 
 ```bash
-npm create vite@latest meridian-banking -- --template react-ts
-cd meridian-banking
-npm i @tanstack/react-query react-hook-form zod @hookform/resolvers
-npm i -D msw vitest @testing-library/react @testing-library/user-event \
-  @testing-library/jest-dom jsdom
-npm i lucide-react   # optional
+npm install
+npm run dev
 ```
 
-Run the mock API from the folder that contains `mock-api/`, and proxy `/api`:
-
-```ts
-// vite.config.ts
-export default defineConfig({
-  plugins: [react()],
-  server: { proxy: { '/api': 'http://localhost:4010' } },
-})
-```
+What is **not** done: the dashboard, transfer flow, theme/segment switching,
+search, validation, tests for the required behaviour, and deployment. Those are
+the assignment. You decide how to structure features and components on top of
+the starter.
 
 ---
 
@@ -260,14 +262,15 @@ export default defineConfig({
 
 | Area | Expectation |
 | --- | --- |
-| Framework | React 18+ with Vite and TypeScript (`strict: true`) |
+| Framework | React 19 + Vite + TypeScript (`strict: true`), already scaffolded |
+| Scaffolding | Extend the starter; keep the feature/component structure clear and explain it |
 | Styling | Your choice: CSS Modules, Tailwind, or plain CSS. Must use the tokens. |
 | Server state | TanStack Query (recommended) — query keys, loading/error, invalidation |
 | UI state | Local state / context / Zustand for theme, segment, dialog. No API data here. |
 | Forms | React Hook Form + Zod, or equivalent with a single source of truth |
 | Tests | Vitest + Testing Library + MSW. Test behaviour, not implementation. |
 | Components | A UI kit is fine for primitives (dialog, select). No complete dashboard templates. |
-| Deployment | Netlify, Vercel, Cloudflare Pages, or GitHub Pages. HTTPS required for MSW. |
+| Deployment | Netlify, Vercel, or Cloudflare Pages. HTTPS is required for MSW. See [`DEPLOYMENT.md`](../DEPLOYMENT.md). |
 | Browser support | Latest Chrome, Safari, Firefox; responsive from 360 px |
 
 **Avoid:** `useEffect`-based fetching with hand-rolled loading flags, storing
@@ -280,7 +283,7 @@ duplicated between the input and the submit handler.
 
 | Time | Work |
 | --- | --- |
-| 0:00–0:15 | Scaffold, tokens, theme + segment switching, app shell |
+| 0:00–0:15 | Review the starter + API contract, choose your feature structure, wire theme + segment switching |
 | 0:15–0:50 | Dashboard: queries, skeletons, total, account cards, transaction list + search |
 | 0:50–1:35 | Transfer: dialog/sheet, stepper, steps 1–2, validation |
 | 1:35–2:05 | Review + submit, success, cache refresh, error handling |
@@ -294,14 +297,57 @@ perfection.**
 
 ---
 
-## 8. Submission
+## 8. Deploy and submit
 
-Reply with:
+### Deploying
 
-1. Public repo URL.
-2. Deployed URL.
-3. The README described below.
-4. Your time log and AI disclosure (can live in the README).
+The deployed app must work **end-to-end without a local server**. Run the MSW
+handlers in the browser for the deployed build — do not point production at
+`localhost:4010`.
+
+1. The starter already includes `public/mockServiceWorker.js` and starts the
+   worker in `src/main.tsx`. If you rebuild the setup, run
+   `npx msw init public/ --save` and start the worker before rendering.
+2. Build with `npm run build`; deploy the `dist/` folder.
+3. MSW needs HTTPS. Netlify, Vercel, and Cloudflare Pages all provide it.
+4. Start the worker unconditionally for this assignment. If you gate it behind
+   an env flag, set that variable in the platform's dashboard too.
+
+See [`DEPLOYMENT.md`](../DEPLOYMENT.md) for a full checklist and the common MSW
+failures (worker 404s, stale service workers, base paths, mobile testing).
+
+| Platform | Build command | Output | Notes |
+| --- | --- | --- | --- |
+| **Netlify** | `npm run build` | `dist` | Import the repo; Vite is detected. Set `NODE_VERSION=22` if the build image is old. Add `public/_redirects` only if you add client-side routes. |
+| **Vercel** | `npm run build` | `dist` | Framework preset: Vite. Usually no extra config. |
+| **Cloudflare Pages** | `npm run build` | `dist` | Framework preset: Vite. Set `NODE_VERSION=22` if prompted. |
+
+GitHub Pages also works, but needs a `base` path and a 404 fallback for the
+service worker. The three platforms above are simpler.
+
+Before submitting, verify the deployed URL:
+
+- [ ] Opens on a phone-sized viewport.
+- [ ] Dashboard data loads.
+- [ ] A transfer completes and the balance updates.
+- [ ] No console errors on the happy path.
+- [ ] `npm run build` passes from a clean clone.
+- [ ] No `.env` secrets or tokens are committed.
+
+### Submit
+
+We recommend a **private** GitHub repo so your work isn't publicly indexed.
+
+1. Push your work to a private repo.
+2. Repo → **Settings → Collaborators → Add people** → add the reviewer handle
+   from your invitation email → **Read** access.
+3. Reply with:
+   - The **private repo URL** (and confirmation the reviewer has access).
+   - The **deployed URL**.
+   - The README described below.
+   - Your time log and AI disclosure (can live in the README).
+
+A public repo is acceptable if you prefer, but add the reviewer either way.
 
 ### README template
 
@@ -309,13 +355,14 @@ Reply with:
 # Meridian Banking — <Your Name>
 
 - Deployed: <url>
-- Repo: <url>
+- Repo: <private repo url>
 - Run locally: `npm i && npm run dev` (mock API: `node mock-api/server.mjs`)
 
 ## Stack and why
 ## Project structure (folders, modules, responsibilities)
 ## Architecture (server state, UI state, forms, theming)
 ## Key implementation decisions and trade-offs
+## Deployment (platform, build command, output directory)
 ## How I handled loading / empty / error states
 ## Tests (what they cover, how to run)
 ## What I'd do with more time
@@ -334,9 +381,10 @@ responsive and accessibility (10), theming (10), tests (5), scaffolding, project
 structure and implementation decisions (5), and deployment + README (5). Bonus
 work is noted separately and never compensates for a broken core.
 
-We look at the deployed app first, then the repo: how you scaffolded it, how the
-folders and modules are organised, and whether the architecture is deliberate.
-The README should explain the choices and trade-offs, not just list features.
+We look at the deployed app first, then the repo: how you extended the starter,
+how the folders and modules are organised, and whether the architecture is
+deliberate. The README should explain the choices and trade-offs, not just list
+features.
 
 Then a 20-minute walkthrough where you'll explain decisions and make one small
 live change. **AI-assisted work is welcome. The walkthrough is where we check

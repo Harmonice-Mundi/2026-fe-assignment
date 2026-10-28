@@ -4,20 +4,24 @@ Two implementations of the same contract:
 
 | File | What it is |
 | --- | --- |
-| `server.mjs` | Zero-dependency Node HTTP server (port 4010) |
 | `handlers.ts` | MSW v2 handlers for the browser and Vitest |
 | `db.json` | Seed data used by both |
+| `server.mjs` | Optional zero-dependency Node HTTP server (port 4010) |
+
+The starter already uses the MSW handlers through `src/mocks/handlers.ts`. The
+Node server is optional and useful for `curl` debugging.
 
 Full endpoint documentation: [`../brief/api-contract.md`](../brief/api-contract.md).
+Deployment troubleshooting: [`../DEPLOYMENT.md`](../DEPLOYMENT.md).
 
-## Run the Node server
+## Optional: run the Node server
 
 ```bash
-node mock-api/server.mjs
+npm run mock
 # [mock-api] listening on http://localhost:4010
 ```
 
-Proxy it from Vite:
+Proxy it from Vite if you want to use it instead of MSW:
 
 ```ts
 // vite.config.ts
@@ -40,40 +44,22 @@ Custom port:
 PORT=4011 node mock-api/server.mjs
 ```
 
-## Use MSW instead (recommended for deployment)
+## MSW (already wired)
 
-```bash
-npm i -D msw
-npx msw init public/ --save
-mkdir -p src/mocks
-cp mock-api/handlers.ts mock-api/db.json src/mocks/
-```
+| Piece | File |
+| --- | --- |
+| Shared handlers + seed | `mock-api/handlers.ts`, `mock-api/db.json` |
+| App re-export | `src/mocks/handlers.ts` |
+| Worker | `src/mocks/browser.ts` |
+| Worker startup | `src/main.tsx` |
+| Service worker | `public/mockServiceWorker.js` |
 
-```ts
-// src/mocks/browser.ts
-import { setupWorker } from 'msw/browser'
-import { handlers } from './handlers'
+The app starts the worker before rendering and sends `/api/...` requests through
+`src/api/client.ts`. Do not copy the handlers into `src/mocks/`; the re-export
+keeps the browser, tests, and Node server on one contract.
 
-export const worker = setupWorker(...handlers)
-```
-
-```tsx
-// src/main.tsx
-async function enableMocking() {
-  const { worker } = await import('./mocks/browser')
-  await worker.start({
-    onUnhandledRequest: 'bypass',
-    serviceWorker: { url: `${import.meta.env.BASE_URL}mockServiceWorker.js` },
-  })
-}
-
-enableMocking().then(() => {
-  // render <App />
-})
-```
-
-In tests, import `handlers` and `resetMockDb` (adjust the path if your setup
-file lives somewhere other than `src/test/`):
+In tests, import `handlers` and `resetMockDb` from `src/mocks/handlers`
+(adjust the path if your setup file lives somewhere else):
 
 ```ts
 import { setupServer } from 'msw/node'
@@ -124,6 +110,6 @@ curl -X POST http://localhost:4010/api/__reset
   hitting the wrong port.
 - **State looks stale:** restart the server or call `/api/__reset`.
 - **MSW 404s:** the service worker file must be in `public/`, and the app must be
-  served over HTTPS (or `localhost`).
+  served over HTTPS (or `localhost`). See [`../DEPLOYMENT.md`](../DEPLOYMENT.md).
 - **Deployed demo has no data:** MSW must be started in the production build —
-  it is not dev-only unless you make it so.
+  it is not dev-only in the starter.
