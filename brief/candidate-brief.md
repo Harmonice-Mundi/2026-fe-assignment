@@ -1,6 +1,6 @@
 # Meridian Banking — Frontend Take-Home
 
-**Role:** Junior Frontend Developer
+**Role:** Frontend Developer
 **Timebox:** 2–3 hours of focused work (hard cap: 3 hours)
 **Stack:** React + TypeScript + Vite
 **Deliverable:** one deployed, single-page app + public repo + README
@@ -17,9 +17,14 @@ transfer flow that sends money to a payee.
 Everything is client-side against a provided mock API. There is no auth, no real
 backend, and **no second page**.
 
-> **What we care about most:** the transfer flow working end-to-end, honest
-> loading/error/empty states, and code you can explain. Visual polish matters,
-> but a clean, complete flow beats a beautiful half-flow.
+> **What we care about most:** how you scaffold and structure the project, the
+> architecture and implementation decisions behind it, and a transfer flow that
+> works end-to-end. Honest loading/error/empty states matter too. Visual polish
+> is welcome, but a clean, complete flow beats a beautiful half-flow.
+>
+> **AI tools are allowed.** We're evaluating your judgment: what you delegated,
+> what you changed, and why. You must be able to explain and modify everything
+> you submit.
 
 ---
 
@@ -308,7 +313,9 @@ Reply with:
 - Run locally: `npm i && npm run dev` (mock API: `node mock-api/server.mjs`)
 
 ## Stack and why
+## Project structure (folders, modules, responsibilities)
 ## Architecture (server state, UI state, forms, theming)
+## Key implementation decisions and trade-offs
 ## How I handled loading / empty / error states
 ## Tests (what they cover, how to run)
 ## What I'd do with more time
@@ -322,22 +329,28 @@ Reply with:
 ## 9. How you'll be assessed
 
 A 100-point rubric covers: dashboard and data (20), transfer flow (25),
-validation and edge cases (10), state and data layer (10), responsive and
-accessibility (10), theming (10), tests (5), code quality (5), and deployment +
-README (5). Bonus work is noted separately and never compensates for a broken
-core.
+validation and edge cases (10), architecture, state and data layer (10),
+responsive and accessibility (10), theming (10), tests (5), scaffolding, project
+structure and implementation decisions (5), and deployment + README (5). Bonus
+work is noted separately and never compensates for a broken core.
 
-We review the deployed app first, then the repo, then a 20-minute walkthrough
-where you'll explain decisions and make one small live change. **You must be
-able to explain any code you submit, including AI-assisted code.**
+We look at the deployed app first, then the repo: how you scaffolded it, how the
+folders and modules are organised, and whether the architecture is deliberate.
+The README should explain the choices and trade-offs, not just list features.
+
+Then a 20-minute walkthrough where you'll explain decisions and make one small
+live change. **AI-assisted work is welcome. The walkthrough is where we check
+that you understand and can modify what you submitted.**
 
 ---
 
 ## 10. Rules and FAQ
 
 **Can I use AI?**
-Yes. Disclose the tools and what you used them for. You own the result: it must
-run, it must be tested, and you must be able to explain and modify it live.
+Yes — for scaffolding, implementation, tests, CSS, or refactors. Disclose the
+tools and what you used them for. You own the result: it must run, it must be
+tested, and you must be able to explain and modify it live. We care more about
+your judgment and understanding than whether AI was involved.
 
 **Can I use a component library?**
 Yes for primitives (dialog, select, toast). No complete dashboard/admin
@@ -362,7 +375,10 @@ Out of scope. The mock API is the source of truth.
 Latest Chrome, Safari, Firefox. Responsive from 360 px to 1440 px+.
 
 **What does a great submission look like?**
-The deployed app works on a phone and a laptop. Balances update after a transfer.
-Every failure path has a message and a way forward. The theme switch changes the
-whole surface, not just the button. Tests fail when the behaviour breaks. The
-README is honest about trade-offs.
+The scaffold is reproducible: `npm i`, `npm run dev`, `npm test`, and
+`npm run build` work from a clean clone. The project is easy to navigate, with
+clear module boundaries and a typed API layer. The README explains the structure
+and the trade-offs. The deployed app works on a phone and a laptop. Balances
+update after a transfer. Every failure path has a message and a way forward. The
+theme switch changes the whole surface, not just the button. Tests fail when the
+behaviour breaks.
