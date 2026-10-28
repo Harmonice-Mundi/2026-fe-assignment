@@ -356,7 +356,7 @@ A public repo is acceptable if you prefer, but add the reviewer either way.
 
 - Deployed: <url>
 - Repo: <private repo url>
-- Run locally: `npm i && npm run dev` (mock API: `node mock-api/server.mjs`)
+- Run locally: `npm i && npm run dev` (MSW starts automatically)
 
 ## Stack and why
 ## Project structure (folders, modules, responsibilities)
