@@ -66,12 +66,11 @@ npm run dev        # start the app
 npm test           # run tests once (npm run test:watch to keep watching)
 npm run lint       # ESLint
 npm run typecheck  # TypeScript
-npm run check      # lint + typecheck + tests (CI runs this and the build)
+npm run check      # lint + typecheck + tests
 npm run build      # production build into dist/
 ```
 
-A GitHub Actions workflow (`.github/workflows/ci.yml`) runs lint, tests and
-build on every push. Keep it green.
+Run `npm run check` and `npm run build` before you submit; both should pass.
 
 ## 4. How we assess
 

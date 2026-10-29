@@ -146,7 +146,7 @@ Set both on the `<html>` element, and the tokens do the rest:
   1. an amount over the balance shows the error and sends no request;
   2. a successful transfer shows the success screen and the dashboard updates;
   3. a failed dashboard request shows the error, and `Retry` loads it.
-- **E5 — Quality.** `npm run check` and `npm run build` pass (CI runs them).
+- **E5 — Quality.** `npm run check` and `npm run build` pass.
   No console errors when everything works.
 - **E6 — Deployed.** The public URL works end to end with no local server.
 
