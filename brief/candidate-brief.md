@@ -24,7 +24,7 @@ in the starter handles everything, including in your deployed site.
 | | |
 | --- | --- |
 | **Required** | Everything in §3: dashboard, transfer flow, validation, loading/empty/error states, responsive layout, light/dark + Retail/Premium, 3 tests, deployment, README |
-| **Optional** | Pick any if you have time; none are needed for a strong result. A daily-limit progress bar · `Discard this transfer?` confirmation when closing a half-filled dialog · a debug menu that triggers the error/empty states · a balance-hide toggle · a third segment · a `#transfer` deep link · one end-to-end test |
+| **Optional** | Pick any if you have time; none are needed for a strong result. A daily-limit progress bar · `Discard this transfer?` confirmation when closing a half-filled dialog · a debug menu that triggers the error/empty states · a balance-hide toggle · a third segment · a `#transfer` deep link · one end-to-end test · a CI workflow you set up yourself (e.g. GitHub Actions running `npm run check` and `npm run build`) |
 | **Out of scope** | Login, the Cards/Payments/Insights pages, charts, notifications, adding/editing payees, transaction detail, other currencies, translations |
 
 The `Cards`, `Payments` and `Insights` links in the wireframe header are
@@ -146,7 +146,8 @@ Set both on the `<html>` element, and the tokens do the rest:
   1. an amount over the balance shows the error and sends no request;
   2. a successful transfer shows the success screen and the dashboard updates;
   3. a failed dashboard request shows the error, and `Retry` loads it.
-- **E5 — Quality.** `npm run check` and `npm run build` pass.
+- **E5 — Quality.** `npm run check` and `npm run build` pass. (Running
+  them in CI is optional — see §2.)
   No console errors when everything works.
 - **E6 — Deployed.** The public URL works end to end with no local server.
 
