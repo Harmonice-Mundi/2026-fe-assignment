@@ -1,134 +1,38 @@
 # Mock API contract
 
-Base URL in the app: `/api` (intercepted by MSW). The optional Node server
-listens at `http://localhost:4010/api`.
+The app calls `/api/...`. In the browser, in tests and on your deployed site,
+these requests are answered by MSW using the handlers in
+`mock-api/handlers.ts`. This is already set up; you don't need to configure
+anything.
 
-The same contract is implemented twice, with identical behaviour:
-
-| Implementation | File | Use |
-| --- | --- | --- |
-| MSW handlers | `mock-api/handlers.ts` (re-exported by `src/mocks/handlers.ts`) | Browser dev **and deployed demos**, tests |
-| Node server (zero dependencies) | `mock-api/server.mjs` | Optional `curl` debugging |
-
-Both are seeded from `mock-api/db.json`. State lives in memory and resets when
-the server restarts / the page reloads. There is a reset endpoint for tests.
-
----
+Use `apiFetch` from `src/api/client.ts` and the types in `src/api/types.ts`.
+Keep API calls in a typed layer; components shouldn't call `fetch` directly.
 
 ## Conventions
 
-- JSON in, JSON out. All money values are numbers in **SGD**, 2 decimals.
-- Dates are ISO 8601 strings. Display them in the browser's local timezone.
-- CORS is open (`*`) on the Node server; MSW runs in the page.
-- Artificial latency: **500 ms** per request. Override with `?delay=1500`
-  (capped at 5000 ms).
-- All errors use one shape:
+- JSON in and out. Money is a number in SGD with up to 2 decimals.
+- Dates are ISO 8601 strings. Show them in Singapore time (`formatShortDate`
+  in `src/lib/format.ts` does this).
+- Every response takes ~500 ms.
+- Errors always have this shape (thrown as `ApiError` by `apiFetch`):
 
 ```ts
 interface ApiErrorBody {
   error: {
     code: string
     message: string
-    fields?: Record<string, string> // field name -> human-readable message
+    fields?: Record<string, string> // field name -> message for that field
     meta?: Record<string, unknown>  // e.g. available balance, limit
   }
 }
 ```
 
-- Request bodies are `application/json`.
-- The API never returns a full account number. Payees expose a masked number
-  only; the server resolves the real number when `payeeId` is sent.
-
----
-
-## Types
-
-Copy these into your app (e.g. `src/types/api.ts`).
-
-```ts
-export type Segment = 'retail' | 'premium'
-export type AccountType = 'checking' | 'savings' | 'credit'
-export type TransactionDirection = 'in' | 'out'
-export type TransactionStatus = 'posted' | 'pending'
-
-export interface Customer {
-  id: string
-  firstName: string
-  lastName: string
-  email: string
-  segment: Segment
-  dailyTransferLimit: number // 5000
-  transferredToday: number   // starts at 0, increases after each transfer
-}
-
-export interface Account {
-  id: string
-  name: string
-  type: AccountType
-  maskedNumber: string // "•••• 4821"
-  balance: number      // credit card balances are negative
-  currency: 'SGD'
-}
-
-export interface Transaction {
-  id: string
-  accountId: string
-  date: string // ISO 8601
-  description: string
-  category: string // income | groceries | dining | transport | bills | shopping | subscriptions | health | transfer
-  direction: TransactionDirection
-  amount: number // always positive; direction determines the sign
-  status: TransactionStatus
-}
-
-export interface Payee {
-  id: string
-  name: string
-  bank: string
-  accountNumberMasked: string // "•••• 3391"
-  initials: string             // "JT"
-  lastUsedAt: string           // ISO 8601
-}
-
-export interface Transfer {
-  id: string
-  reference: string // "TRF-7QK2M9"
-  status: 'completed'
-  fromAccountId: string
-  recipient: {
-    name: string
-    bank: string
-    accountNumberMasked: string
-  }
-  amount: number
-  fee: number // 0
-  currency: 'SGD'
-  note: string | null
-  createdAt: string
-}
-
-export interface CreateTransferRequest {
-  fromAccountId: string
-  amount: number
-  note?: string
-  payeeId?: string // exactly one of payeeId / recipient
-  recipient?: {
-    name: string
-    accountNumber: string // 8 digits
-    bank: string
-  }
-}
-```
-
----
+- The API never returns a full account number. Saved payees only have a
+  masked number; to pay one, send its `payeeId`.
 
 ## Endpoints
 
-### `GET /api/health`
-
-```json
-{ "ok": true }
-```
+`GET /api/health` returns `{ "ok": true }`. Only the placeholder screen uses it.
 
 ### `GET /api/customer`
 
@@ -146,56 +50,35 @@ export interface CreateTransferRequest {
 }
 ```
 
-`segment` is the customer's default segment. The UI switch may override it;
-no API call is needed to change segment.
+`segment` is her default. The Retail/Premium switch in the UI can override it
+locally; there's no API call for that.
+
+Remaining daily limit = `dailyTransferLimit - transferredToday`.
 
 ### `GET /api/accounts`
 
 ```json
 {
   "accounts": [
-    {
-      "id": "acc_checking",
-      "name": "Everyday Checking",
-      "type": "checking",
-      "maskedNumber": "•••• 4821",
-      "balance": 4280.55,
-      "currency": "SGD"
-    },
-    {
-      "id": "acc_savings",
-      "name": "Savings Plus",
-      "type": "savings",
-      "maskedNumber": "•••• 9930",
-      "balance": 12840,
-      "currency": "SGD"
-    },
-    {
-      "id": "acc_credit",
-      "name": "Rewards Card",
-      "type": "credit",
-      "maskedNumber": "•••• 7712",
-      "balance": -420.3,
-      "currency": "SGD"
-    }
+    { "id": "acc_checking", "name": "Everyday Checking", "type": "checking", "maskedNumber": "•••• 4821", "balance": 4280.55, "currency": "SGD" },
+    { "id": "acc_savings",  "name": "Savings Plus",      "type": "savings",  "maskedNumber": "•••• 9930", "balance": 12840,   "currency": "SGD" },
+    { "id": "acc_credit",   "name": "Rewards Card",      "type": "credit",   "maskedNumber": "•••• 7712", "balance": -420.3,  "currency": "SGD" }
   ]
 }
 ```
 
-Dashboard total = sum of `type !== 'credit'` → `17120.55`.
+Total available = accounts where `type !== 'credit'` → `17120.55`.
 
 ### `GET /api/transactions`
 
-Query params (all optional):
-
-| Param | Values | Default | Notes |
+| Query param | Values | Default | |
 | --- | --- | --- | --- |
-| `accountId` | `all` or an account id | `all` | Filter by account |
-| `q` | string | — | Case-insensitive match on description **or** category |
-| `direction` | `in` \| `out` | — | Filter by direction |
-| `limit` | 1–50 | `20` | Applied after filtering and sorting |
+| `limit` | 1–50 | `20` | The dashboard uses `limit=8` |
+| `q` | text | — | Matches description **or** category, ignoring case |
+| `accountId` | `all` or an account id | `all` | |
+| `direction` | `in` or `out` | — | |
 
-Sorted by `date` descending. Response:
+Newest first.
 
 ```json
 {
@@ -211,14 +94,15 @@ Sorted by `date` descending. Response:
       "status": "posted"
     }
   ],
-  "total": 8
+  "total": 15
 }
 ```
 
-`total` = number of matches **before** `limit`, so the UI can say `Showing 8
-of 14` when unfiltered.
+`amount` is always positive; `direction` says whether money came in or went
+out. `total` is the number of matches before `limit` is applied.
 
-The dashboard must request `limit=8` and display exactly those 8.
+Dashboard search (D6) can filter the 8 loaded rows in the browser or use `q` —
+either is fine. Say which you chose and why.
 
 ### `GET /api/payees`
 
@@ -231,43 +115,33 @@ The dashboard must request `limit=8` and display exactly those 8.
       "bank": "DBS",
       "accountNumberMasked": "•••• 3391",
       "initials": "JT",
-      "lastUsedAt": "2026-10-12T10:00:00+08:00"
+      "lastUsedAt": "2026-10-19T09:10:00+08:00"
     }
   ]
 }
 ```
 
-Sorted by `lastUsedAt` descending.
+Most recently used first. There are 4 payees.
 
 ### `POST /api/transfers`
 
-Request — saved payee:
+Send **either** `payeeId` (saved payee) **or** `recipient` (someone new) — not
+both.
 
 ```json
-{
-  "fromAccountId": "acc_checking",
-  "payeeId": "pay_001",
-  "amount": 120,
-  "note": "Dinner"
-}
+{ "fromAccountId": "acc_checking", "payeeId": "pay_001", "amount": 120, "note": "Dinner" }
 ```
-
-Request — new recipient:
 
 ```json
 {
   "fromAccountId": "acc_checking",
   "amount": 120,
   "note": "Dinner",
-  "recipient": {
-    "name": "Alex Lim",
-    "accountNumber": "12345678",
-    "bank": "OCBC"
-  }
+  "recipient": { "name": "Alex Lim", "accountNumber": "12345678", "bank": "OCBC" }
 }
 ```
 
-Success: **201 Created**
+Success — **201**:
 
 ```json
 {
@@ -276,193 +150,88 @@ Success: **201 Created**
     "reference": "TRF-7QK2M9",
     "status": "completed",
     "fromAccountId": "acc_checking",
-    "recipient": {
-      "name": "Jamie Tan",
-      "bank": "DBS",
-      "accountNumberMasked": "•••• 3391"
-    },
+    "recipient": { "name": "Jamie Tan", "bank": "DBS", "accountNumberMasked": "•••• 3391" },
     "amount": 120,
     "fee": 0,
     "currency": "SGD",
     "note": "Dinner",
     "createdAt": "2026-10-20T10:15:00.000Z"
   },
-  "account": {
-    "id": "acc_checking",
-    "balance": 4160.55
-  },
-  "dailyLimit": {
-    "limit": 5000,
-    "used": 120,
-    "remaining": 4880
-  }
+  "account": { "id": "acc_checking", "balance": 4160.55 },
+  "dailyLimit": { "limit": 5000, "used": 120, "remaining": 4880 }
 }
 ```
 
-Side effects: the account balance drops, a posted `transfer` transaction is
-added, and `transferredToday` increases. The transfer is **not** idempotent —
-disable the submit button while pending.
+What changes on the server: the account balance goes down, a new transaction
+is added, and `transferredToday` goes up. Sending the same request twice sends
+the money twice, so make sure the button can't be pressed twice.
 
-On success, refresh `accounts`, `transactions`, and `customer` (invalidate their
-query keys, or apply the response with `setQueryData`). Both are acceptable.
+Afterwards, refresh customer, accounts and transactions — either invalidate
+those queries or update the cache from the response. Both are fine; explain
+your choice.
 
----
+## Errors
 
-## Validation and errors
-
-| Check | Status | Code | `fields` key |
+| When | Status | `code` | `fields` key |
 | --- | --- | --- | --- |
-| Body is valid JSON | 400 | `INVALID_JSON` | — |
-| `fromAccountId` provided and exists | 400 | `VALIDATION_ERROR` | `fromAccountId` |
-| From account is not a credit card | 400 | `VALIDATION_ERROR` | `fromAccountId` |
-| Exactly one of `payeeId` / `recipient` | 400 | `VALIDATION_ERROR` | `payeeId` |
-| `payeeId` exists | 400 | `VALIDATION_ERROR` | `payeeId` |
-| `recipient.name` 2–50 chars | 400 | `VALIDATION_ERROR` | `recipient.name` |
-| `recipient.accountNumber` exactly 8 digits | 400 | `VALIDATION_ERROR` | `recipient.accountNumber` |
-| `recipient.bank` 2–30 chars | 400 | `VALIDATION_ERROR` | `recipient.bank` |
-| `amount` is a number ≥ 1.00 | 400 | `VALIDATION_ERROR` | `amount` |
-| `amount` has at most 2 decimals | 400 | `VALIDATION_ERROR` | `amount` |
-| `note` ≤ 50 chars | 400 | `VALIDATION_ERROR` | `note` |
-| `amount` ≤ account balance | 422 | `INSUFFICIENT_FUNDS` | `amount` |
-| `amount` ≤ remaining daily limit | 422 | `DAILY_LIMIT_EXCEEDED` | `amount` |
-| Note contains `#fail` (testing hook) | 500 | `INTERNAL_ERROR` | — |
+| Body isn't valid JSON | 400 | `INVALID_JSON` | — |
+| Missing/unknown `fromAccountId`, or it's the credit card | 400 | `VALIDATION_ERROR` | `fromAccountId` |
+| Not exactly one of `payeeId` / `recipient`, or unknown payee | 400 | `VALIDATION_ERROR` | `payeeId` |
+| `recipient.name` not 2–50 chars | 400 | `VALIDATION_ERROR` | `recipient.name` |
+| `recipient.accountNumber` not 8 digits | 400 | `VALIDATION_ERROR` | `recipient.accountNumber` |
+| `recipient.bank` not 2–30 chars | 400 | `VALIDATION_ERROR` | `recipient.bank` |
+| `amount` below 1.00 or more than 2 decimals | 400 | `VALIDATION_ERROR` | `amount` |
+| `note` over 50 chars | 400 | `VALIDATION_ERROR` | `note` |
+| `amount` more than the account balance | 422 | `INSUFFICIENT_FUNDS` | `amount` |
+| `amount` more than the remaining daily limit | 422 | `DAILY_LIMIT_EXCEEDED` | `amount` |
+| Note contains `#fail` (test hook) | 500 | `INTERNAL_ERROR` | — |
 
-Error examples:
+Example:
 
 ```json
 {
   "error": {
     "code": "INSUFFICIENT_FUNDS",
     "message": "Amount exceeds available balance.",
-    "fields": {
-      "amount": "Amount can't be more than your available balance (SGD 4,280.55)."
-    },
+    "fields": { "amount": "Amount can't be more than your available balance (SGD 4,280.55)." },
     "meta": { "available": 4280.55 }
   }
 }
 ```
 
-```json
-{
-  "error": {
-    "code": "DAILY_LIMIT_EXCEEDED",
-    "message": "Amount exceeds remaining daily limit.",
-    "fields": {
-      "amount": "This transfer exceeds your remaining daily limit (SGD 5,000.00)."
-    },
-    "meta": { "limit": 5000, "used": 0, "remaining": 5000 }
-  }
-}
-```
+Your form should catch these before sending. If the API still rejects a
+request, show `fields.amount` (etc.) under the field and `message` in a
+`role="alert"` banner.
 
-```json
-{
-  "error": {
-    "code": "INTERNAL_ERROR",
-    "message": "Something went wrong. Your money hasn't left your account."
-  }
-}
-```
+## Test and demo hooks
 
-Client validation should mirror these rules **before** sending, but the API is
-the final authority. Show `fields.amount` (or your own equivalent copy) inline,
-and `message` in a `role="alert"` banner for 422/500 errors.
-
----
-
-## Demo / debugging hooks
+Use these to see your error, empty and loading states. Don't use them in
+normal app logic.
 
 | Hook | Effect |
 | --- | --- |
-| `GET ...?scenario=error` | Any GET returns 500 `INTERNAL_ERROR` |
-| `GET ...?scenario=empty` | List endpoints return empty arrays |
-| `?delay=1500` | Adds 1500 ms latency (max 5000) |
-| Note includes `#fail` | Transfer returns 500 after validation; no money moves |
-| `POST /api/__reset` | Restores seed data (tests, demos) |
+| `?scenario=error` on any GET | 500 `INTERNAL_ERROR` |
+| `?scenario=empty` on a list GET | Empty list |
+| `?delay=1500` | Slower response (max 5000 ms) |
+| Note contains `#fail` | Transfer fails with 500; no money moves |
 
-`scenario` and `delay` are read by both the Node server and the MSW handlers.
-They are for demoing states, not for production logic.
+To show the dashboard error on your deployed site, add `?scenario=error` to
+the requests — for example from an optional debug menu. Don't put a permanent
+"break the app" button in the main UI.
 
-To show the dashboard error state in a deployed demo, either use DevTools →
-Network → Offline, or add a small debug menu (should-have) that appends
-`?scenario=error` to requests. Do not ship a permanent "break the app" button in
-the main UI.
+## Tests
 
----
+`src/test/setup.ts` starts the mock API for Vitest and resets the data before
+every test, so tests don't affect each other.
 
-## Setup
-
-The starter is already wired. `npm install && npm run dev` starts Vite and MSW.
-
-| Piece | File |
-| --- | --- |
-| Shared handlers + seed | `mock-api/handlers.ts`, `mock-api/db.json` |
-| App re-export | `src/mocks/handlers.ts` |
-| Worker | `src/mocks/browser.ts` |
-| Worker startup | `src/main.tsx` |
-| Service worker | `public/mockServiceWorker.js` |
-| Typed fetch | `src/api/client.ts` |
-
-`src/api/client.ts` calls `${import.meta.env.BASE_URL}api/...`, so the same code
-works at `/` and under a sub-path. The worker starts before render; if it fails,
-the app still renders and the health check shows `not connected`.
-
-If you rebuild the MSW setup from scratch: `npm i -D msw`,
-`npx msw init public/ --save`, create the worker, and await `worker.start()`
-before the first fetch.
-
-### Optional: Node server for curl
-
-```bash
-npm run mock
-# [mock-api] listening on http://localhost:4010
-```
-
-```ts
-// vite.config.ts
-server: { proxy: { '/api': 'http://localhost:4010' } }
-```
-
-Smoke test:
-
-```bash
-curl http://localhost:4010/api/accounts
-curl -X POST http://localhost:4010/api/transfers \
-  -H 'content-type: application/json' \
-  -d '{"fromAccountId":"acc_checking","payeeId":"pay_001","amount":1}'
-```
-
-The deployed app must use MSW, not this server. See
-[`DEPLOYMENT.md`](../DEPLOYMENT.md).
-
-### Tests
-
-The starter includes `src/test/setup.ts` with MSW's Node server. It resets the
-seed before every test:
-
-```ts
-// src/test/setup.ts
-import '@testing-library/jest-dom/vitest'
-import { setupServer } from 'msw/node'
-import { afterAll, afterEach, beforeAll, beforeEach } from 'vitest'
-import { handlers, resetMockDb } from '../mocks/handlers'
-
-export const server = setupServer(...handlers)
-
-beforeAll(() => server.listen({ onUnhandledRequest: 'error' }))
-beforeEach(() => resetMockDb())
-afterEach(() => server.resetHandlers())
-afterAll(() => server.close())
-```
-
-Override a response inside a test (adjust the import path to your test file):
+To test an edge case, override one response inside the test:
 
 ```ts
 import { http, HttpResponse } from 'msw'
-import { server } from './test/setup'
+import { server } from '../test/setup' // adjust the path to your test file
 
 server.use(
-  http.get('/api/accounts', () =>
+  http.get('*/api/accounts', () =>
     HttpResponse.json(
       { error: { code: 'INTERNAL_ERROR', message: 'Down' } },
       { status: 500 },
@@ -471,25 +240,9 @@ server.use(
 )
 ```
 
-Remember to `resetMockDb()` between tests, otherwise transfers mutate the seed
-for later tests.
+The override only lasts for that test.
 
-MSW notes:
+## Optional: Node server
 
-- `mock-api/handlers.ts` imports `./db.json`; keep the two together.
-- The starter's `tsconfig.json` already enables `resolveJsonModule`.
-- MSW requires HTTPS (or `localhost`) for the browser worker.
-- For a sub-path deployment, Vite `base` and the worker URL must match
-  (`import.meta.env.BASE_URL` handles both in the starter).
-- MSW state is in memory; a refresh resets balances to the seed. That is fine
-  for a demo. `POST /api/__reset` is available for tests.
-
----
-
-## What not to change
-
-- Do not edit `db.json` or the handler logic to make a screen pass. If a case is
-  missing, add a test override.
-- Do not call the API from components directly; keep a typed `src/api/` layer.
-- Do not send `recipient.accountNumber` for saved payees — send `payeeId`. The
-  masked number in the payee list is intentionally not a real account number.
+`npm run mock` runs the same API on `http://localhost:4010` for `curl`
+debugging. You don't need it. See [`mock-api/README.md`](../mock-api/README.md).

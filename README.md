@@ -1,137 +1,136 @@
 # Meridian Banking — Frontend Take-Home
 
-**Role:** Frontend Developer
-**Timebox:** 2–3 hours (hard cap: 3 hours)
-**Stack:** React + TypeScript + Vite (Node 22 recommended)
+Build a small banking app for one customer: a **dashboard** that shows her
+accounts and recent transactions, and a **three-step transfer** that sends money
+to a payee.
 
-Build a single-page banking dashboard with a three-step transfer flow.
+You get a working React + TypeScript starter with a mock API already wired in,
+plus design tokens and a wireframe. You don't need a backend, and you don't need
+to invent data.
 
-## Start here
-
-1. Press **Use this template** at the top of this repo, then choose
-   **Create a new repository**.
-2. Create your copy as a **private** repository **in your own GitHub account** —
-   not in the hiring company's organisation. Do not work in this template repo
-   directly.
-3. Open [`brief/candidate-brief.md`](brief/candidate-brief.md) and read it end
-   to end **before writing code**.
-4. Clone your private copy, then run `npm install && npm run dev`.
-5. Before submitting, invite the reviewer to your repo as a **Read**
-   collaborator (steps below).
-
-Submit the URL of your **private** repo (with the reviewer added as a read-only
-collaborator) and your deployed URL. The full submission checklist is in
-[§8 of the brief](brief/candidate-brief.md#8-deploy-and-submit).
-
-You'll get a seeded mock API, design tokens, and a low-fidelity wireframe — so
-you can spend your time on implementation, not on inventing requirements or
-data.
-
-**AI tools are allowed.** We're interested in how you structure and extend the
-starter, the architecture and decisions behind it, and whether you can explain
-and modify the result.
-
-## What we're looking for
-
-- A clean extension of the starter and a clear project structure.
-- Deliberate architecture: server vs UI state, a typed API layer, form
-  validation, and theming.
-- A transfer flow that works end-to-end, including honest loading/error states.
-- Tests that assert behaviour, and a deployed demo that works.
-- A README that explains the decisions and trade-offs.
-
-## Starter
-
-This repo is a runnable Vite + React + TypeScript app. MSW is already wired, so
-the dashboard can fetch `/api/...` from the first render without a local server.
-Node 22 is recommended (see `.nvmrc`).
-
-```bash
-npm install
-npm run dev        # http://localhost:5173
-npm test           # Vitest + Testing Library + MSW
-npm run build      # type-check + production build
-npm run mock       # optional: Node mock server on :4010
-```
-
-Included: TanStack Query, React Hook Form, Zod, MSW, Vitest, Testing Library,
-the design tokens, and a shared API client/types. **You own the feature
-structure** — add your own components, features, and tests.
-
-## Read in this order (after creating your private copy)
-
-1. [`brief/candidate-brief.md`](brief/candidate-brief.md) — scope, acceptance
-   criteria, time plan, submission rules.
-2. [`brief/api-contract.md`](brief/api-contract.md) — endpoints, validation,
-   error cases, and MSW setup.
-3. [`wireframes/wireframe.md`](wireframes/wireframe.md) — layout only. This is
-   intentionally low-fidelity; it is not a visual design.
-4. [`brief/design-tokens.css`](brief/design-tokens.css) — tokens (already
-   imported in `src/index.css`).
-5. [`mock-api/README.md`](mock-api/README.md) — the mock API and error hooks.
-6. [`DEPLOYMENT.md`](DEPLOYMENT.md) — Netlify/Vercel/Cloudflare settings and
-   MSW deployment gotchas.
-
-## Mock API
-
-MSW starts automatically in `src/main.tsx` and reuses the handlers in
-`mock-api/handlers.ts` through `src/mocks/handlers.ts`.
-
-The Node server is optional and useful for `curl` debugging:
-
-```bash
-npm run mock
-# http://localhost:4010
-```
-
-Then proxy `/api` from Vite if you prefer the server over MSW. For the deployed
-demo, use MSW so the static site works end-to-end.
-
-## Deploy
-
-Build with `npm run build` and deploy the `dist/` folder. The deployed demo must
-run the MSW handlers in the browser — it must not depend on `localhost:4010`.
-
-| Platform | Settings |
+|  |  |
 | --- | --- |
-| **Netlify** | Build: `npm run build` · Publish: `dist` |
-| **Vercel** | Framework: Vite · Build: `npm run build` · Output: `dist` |
-| **Cloudflare Pages** | Framework: Vite · Build: `npm run build` · Output: `dist` |
+| **Time** | Submit within **2 weeks** of receiving this. Most people need about **8–12 hours**; you don't need to use the full two weeks. |
+| **AI tools** | Allowed. In the follow-up call you explain your code and change it live, **without AI help**. See [How we assess](#4-how-we-assess). |
+| **Stack** | React 19, TypeScript, Vite, TanStack Query, React Hook Form, Zod, MSW, Vitest (all installed). Node 22. |
 
-MSW needs HTTPS, which all three provide. Start the worker unconditionally for
-this assignment, and make sure `public/mockServiceWorker.js` is included in the
-build. Full checklist and troubleshooting: [`DEPLOYMENT.md`](DEPLOYMENT.md).
+---
 
-## Submit
+## 1. Get started
 
-Create the repo in **your own GitHub account** (not the hiring company's
-organisation), and keep it **private**.
+1. Press **Use this template** → **Create a new repository**. Make it
+   **Private** and put it under **your own GitHub account**.
+2. Clone your copy and run:
 
-1. On the assignment repo, press **Use this template** → **Create a new
-   repository**. Choose **Private**, and create it under your personal account.
-2. Push your work there.
-3. Invite the reviewer:
-   - Repo → **Settings → Collaborators** (on some repos: **Manage access**).
-   - **Add people** → search for the reviewer handle in your invitation email.
-   - Select the account, choose **Read**, and add it.
-   - Tell us the repo URL so we can accept the invite.
-4. Send the repo URL, confirmation of access, and the deployed URL.
+   ```bash
+   npm install
+   npm run dev        # http://localhost:5173
+   ```
 
-**Can I invite an organisation?** No. GitHub collaborators are **user accounts**
-(or teams, for org-owned repos) — an organisation itself cannot be a
-collaborator. If your repo belongs to an org, the org must allow outside
-collaborators, and you add the individual reviewer account. The simplest path is
-a private repo under your personal account.
+   You should see **"Mock API: connected"**. That screen is a placeholder;
+   replace it with your app.
 
-You don't need to add the reviewer to any organisation; add them to the repo
-only.
+3. Read the docs below in order before writing code.
 
-## Deliverables
+## 2. What to read
 
-- Private repo URL **in your own account** with the reviewer added as a read-only
-  collaborator.
-- Deployed URL.
-- README covering setup, project structure, architecture decisions, deployment,
-  states, tests, time log, AI disclosure, and known gaps.
+| Read | What it gives you |
+| --- | --- |
+| 1. [`brief/candidate-brief.md`](brief/candidate-brief.md) | **The spec.** What to build, what's required vs optional, exact copy. |
+| 2. [`wireframes/wireframe.md`](wireframes/wireframe.md) | Layout of each screen (low fidelity — no visual design). |
+| 3. [`brief/api-contract.md`](brief/api-contract.md) | Endpoints, types, errors, and test hooks. |
 
-The full brief includes the time plan and the exact acceptance criteria.
+Look these up when you need them:
+
+- [`DEPLOYMENT.md`](DEPLOYMENT.md): hosting settings and fixes for common mock-API
+  problems.
+- [`brief/design-tokens.css`](brief/design-tokens.css): colours, spacing and type
+  (already imported).
+- [`mock-api/README.md`](mock-api/README.md): the optional Node mock server.
+
+## 3. What's already in the starter
+
+| Path | What it is |
+| --- | --- |
+| `src/api/client.ts`, `src/api/types.ts` | Typed `apiFetch` helper and the API types. Build your queries on these. |
+| `src/lib/format.ts` | `formatMoney` and `formatShortDate`. Use them so amounts and dates match the brief. |
+| `src/mocks/`, `mock-api/` | The mock API. It runs in the browser, in tests, and in your deployed site. **Don't edit it.** |
+| `src/test/setup.ts` | Test setup. The mock data resets before every test. |
+| `src/App.tsx` | Placeholder screen. Replace it. |
+
+How you structure folders, components and features is **up to you** — that's
+part of what we look at.
+
+```bash
+npm run dev        # start the app
+npm test           # run tests once (npm run test:watch to keep watching)
+npm run lint       # ESLint
+npm run typecheck  # TypeScript
+npm run check      # lint + typecheck + tests
+npm run build      # production build into dist/
+```
+
+Run `npm run check` and `npm run build` before you submit; both should pass.
+
+## 4. How we assess
+
+1. **We open your deployed app** and run through the flows in the brief.
+2. **We read your code and README.** We look at how you structured the
+   project, the decisions you made, and whether the tests check real behaviour.
+3. **We have a follow-up call with you (about 45 minutes).** You share your
+   screen and:
+   - walk us through the structure and two or three decisions you made;
+   - trace one flow through the code (for example, what happens from
+     `Confirm transfer` until the balance updates);
+   - make **one or two small changes live**, without AI assistance. They are
+     the size of "add a validation rule" or "show one more field". Your
+     normal editor, docs and search are fine.
+
+**On AI:** use whatever tools you like while building. We are not checking
+whether code was AI-generated. We are checking that **you understand all of
+it** and made deliberate choices. If you can't explain a piece of code, it
+counts against you, whoever wrote it. Your README must say what you used AI
+for (see below).
+
+A smaller app you understand well scores better than a bigger one you can't
+explain.
+
+## 5. Submit
+
+1. **Deploy** to Netlify, Vercel or Cloudflare Pages (settings in
+   [`DEPLOYMENT.md`](DEPLOYMENT.md)). The deployed site must work with no local
+   server.
+2. **Replace this README** with your own, using the outline below.
+3. **Invite the reviewer** to your private repo: **Settings → Collaborators →
+   Add people**, use the GitHub handle from your invitation email, and choose
+   **Read**. Invite the person, not an organisation.
+4. **Reply to the invitation email** with your repo URL and your deployed URL.
+
+### Your README
+
+```md
+# Meridian Banking — <Your Name>
+
+- Deployed: <url>
+- Run locally: `npm install && npm run dev`
+
+## Project structure
+Folders and what each is responsible for.
+
+## Decisions and trade-offs
+Server state vs UI state, forms and validation, theming, anything you
+chose deliberately, and what you'd change.
+
+## Loading, empty and error states
+How you handled them, and how to see each one in the deployed app.
+
+## Tests
+What they cover and why you picked those cases.
+
+## AI use
+Which tools, and what for. Name two or three places where you changed,
+rejected or fixed what the AI produced, and why.
+
+## Not done / known issues
+What you left out or would do with more time.
+```
