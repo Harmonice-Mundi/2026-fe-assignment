@@ -19,7 +19,7 @@ export default function App() {
     <div className="starter">
       <header className="starter-header">
         <strong>Meridian</strong>
-        <span>Take-home starter</span>
+        <span>Interview assignment starter</span>
       </header>
 
       <main className="starter-main">
