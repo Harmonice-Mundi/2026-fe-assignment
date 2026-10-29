@@ -1,8 +1,8 @@
 /**
  * MSW handlers for the Meridian mock API.
  *
- * Copy `handlers.ts` and `db.json` into `src/mocks/`, then start the worker.
- * Setup instructions: brief/api-contract.md.
+ * Already wired: `src/mocks/handlers.ts` re-exports these for the browser
+ * worker and for tests. Don't copy them. Contract: brief/api-contract.md.
  *
  * The behaviour mirrors mock-api/server.mjs. State is in memory and resets on
  * page reload, or when `resetMockDb()` is called in tests.
@@ -139,6 +139,9 @@ function scenario(request: Request) {
 export const handlers = [
   http.get('*/api/health', async ({ request }) => {
     await wait(request)
+    if (scenario(request) === 'error') {
+      return jsonError(500, 'INTERNAL_ERROR', 'Something went wrong. Please try again.')
+    }
     return HttpResponse.json({ ok: true })
   }),
 

@@ -1,7 +1,8 @@
 # Deploying the assignment
 
-The deployed app must work **without a local server**. The starter runs MSW in
-the browser, so the whole demo is static.
+The deployed app must work **without a local server**. The starter runs the mock
+API (MSW) in the browser, so your site is just static files. You only need this
+page when you deploy, or if the mock API stops responding.
 
 ## 1. Build
 
@@ -60,7 +61,7 @@ The three platforms above are simpler.
 | Symptom | Likely cause | Fix |
 | --- | --- | --- |
 | `mockServiceWorker.js` 404 | Worker not in `public/`, or wrong base path | Run `npx msw init public --save`; check `dist/`; use `${import.meta.env.BASE_URL}mockServiceWorker.js` |
-| App shows `Mock API: not connected` | Worker failed to start or was skipped in production | Start it unconditionally, await it, check the console |
+| Every request fails / `Mock API failed to start` in the console | Worker failed to start or was skipped in production | Start it unconditionally, await it, check the console |
 | API 404s on the deployed site but works locally | You are using the Vite proxy, which only exists in dev | Use MSW in the browser instead of the Node server |
 | Works on the first load, breaks after refresh | Stale service worker / base mismatch | Hard reload; unregister the worker in DevTools; check the scope |
 | Service worker never registers on a phone | You opened `http://192.168.x.x` (not a secure context) | Test the HTTPS deployment, or use an HTTPS tunnel |
@@ -77,5 +78,5 @@ The three platforms above are simpler.
 4. Complete a transfer; the balance and transaction list should update.
 5. Refresh once and confirm the app still loads.
 
-If MSW cannot start, the starter still renders and shows `not connected` rather
-than a blank page. Fix the worker before submitting.
+If the mock API can't start, the app still renders (an error is logged to the
+console) and every request fails. Fix that before submitting.

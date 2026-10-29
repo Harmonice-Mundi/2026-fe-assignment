@@ -23,7 +23,7 @@ MERIDIAN — DESKTOP DASHBOARD (1280px+)
 [ MAIN — 2 columns: content 1fr / rail 300px ]
   LEFT
     Good evening, Ava
-    Tuesday, 20 October
+    Tuesday, 20 October            (optional date line)
     ----------------------------------------------------------------------
     TOTAL AVAILABLE                                        [ + New transfer ]
     SGD 17,120.55
@@ -35,14 +35,14 @@ MERIDIAN — DESKTOP DASHBOARD (1280px+)
     [ Credit    •••• 7712   -SGD 420.30   Amount due ]
     ----------------------------------------------------------------------
     RECENT TRANSACTIONS                          [ Search transactions ]
-    FairPrice Finest   Groceries · 19 Oct                  −SGD 86.40
-    Grab               Transport · 19 Oct                  −SGD 14.20   Pending
-    Kopitiam Corner    Dining · 18 Oct                     −SGD 6.80
-    Spotify            Subscriptions · 17 Oct              −SGD 10.98
-    PayNow from Marcus  Transfer · 16 Oct                  +SGD 45.00
-    Salary — Northwind  Income · 15 Oct                    +SGD 3,200.00
-    SP Group           Bills · 14 Oct                      −SGD 92.15
-    Uniqlo             Shopping · 13 Oct                   −SGD 59.90
+    FairPrice Finest   Groceries · 19 Oct                  -SGD 86.40
+    Grab               Transport · 19 Oct                  -SGD 14.20   Pending
+    Kopitiam Corner    Dining · 18 Oct                     -SGD 6.80
+    Spotify            Subscriptions · 17 Oct              -SGD 10.98
+    PayNow from Marcus Lee  Transfer · 16 Oct              +SGD 45.00
+    Salary — Northwind Labs  Income · 15 Oct               +SGD 3,200.00
+    SP Group           Bills · 14 Oct                      -SGD 92.15
+    Uniqlo             Shopping · 13 Oct                   -SGD 59.90
     (8 newest, sorted by date descending)
 
   RIGHT
@@ -70,7 +70,8 @@ MERIDIAN — MOBILE DASHBOARD (390px)
   M  Meridian                              [◐]  [AC]
 
   Good evening, Ava
-  Tuesday, 20 October
+  Tuesday, 20 October     (optional)
+  [ Retail | Premium ]    (place it wherever fits on mobile)
 
   [ TOTAL AVAILABLE ]
     SGD 17,120.55
@@ -82,11 +83,11 @@ MERIDIAN — MOBILE DASHBOARD (390px)
   RECENT TRANSACTIONS
   [ Search transactions                  ]
   --------------------------------------------------
-  FairPrice Finest   Groceries · 19 Oct    −SGD 86.40
+  FairPrice Finest   Groceries · 19 Oct    -SGD 86.40
   --------------------------------------------------
-  Grab               Transport · 19 Oct    −SGD 14.20
+  Grab               Transport · 19 Oct    -SGD 14.20
   --------------------------------------------------
-  Kopitiam Corner    Dining · 18 Oct       −SGD 6.80
+  Kopitiam Corner    Dining · 18 Oct       -SGD 6.80
   --------------------------------------------------
 
 [ STICKY BOTTOM CTA ]
@@ -133,6 +134,7 @@ Notes:
 - Payees come from `GET /api/payees`.
 - "Send to someone new" is a disclosure, not a new screen.
 - Mobile: same content in a full-screen sheet; footer sticks to the bottom.
+- The fourth payee (Mum) is cut off here for space; show all of them.
 
 ---
 
@@ -223,7 +225,7 @@ AFTER 201 CREATED
         |   The money should arrive within minutes.    |
         |                                              |
         |   [ Back to dashboard ]                      |
-        |   [ Make another transfer ]                  |
+        |   [ Make another transfer ]   (optional)     |
         +----------------------------------------------+
 ```
 
@@ -247,4 +249,4 @@ Implement these; they are not separate screens.
 | Transfer step 3 | idle, submitting, API error + retry |
 | Success | reference shown, dashboard refreshed |
 
-Full acceptance criteria are in `brief/candidate-brief.md`.
+The requirements themselves are in `brief/candidate-brief.md` §3.

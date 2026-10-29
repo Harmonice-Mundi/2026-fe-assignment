@@ -25,27 +25,14 @@ export default function App() {
       <main className="starter-main">
         <h1>Build the dashboard and transfer flow</h1>
         <p>
-          Read <code>brief/candidate-brief.md</code> first, then replace this
-          screen.
+          Start with <code>README.md</code>, then read{' '}
+          <code>brief/candidate-brief.md</code>. Replace this screen with your
+          app.
         </p>
 
         <p className="status" role="status">
           Mock API: {status}
         </p>
-
-        <ul>
-          <li>MSW starts before the app renders.</li>
-          <li>
-            TanStack Query, React Hook Form, Zod, and Vitest are already
-            installed.
-          </li>
-          <li>
-            Design tokens are imported in <code>src/index.css</code>.
-          </li>
-          <li>
-            The API contract lives in <code>brief/api-contract.md</code>.
-          </li>
-        </ul>
       </main>
     </div>
   )

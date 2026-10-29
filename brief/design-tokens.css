@@ -1,7 +1,7 @@
 /* ==========================================================================
    Meridian Banking — design tokens
    --------------------------------------------------------------------------
-   Copy this file into src/styles/tokens.css and import it once.
+   Already imported by src/index.css — don't copy it. Use the variables.
 
    Apply theme + segment on the document element, before first paint:
 
