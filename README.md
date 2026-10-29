@@ -6,6 +6,23 @@
 
 Build a single-page banking dashboard with a three-step transfer flow.
 
+## Start here
+
+1. Press **Use this template** at the top of this repo, then choose
+   **Create a new repository**.
+2. Create your copy as a **private** repository **in your own GitHub account** —
+   not in the hiring company's organisation. Do not work in this template repo
+   directly.
+3. Open [`brief/candidate-brief.md`](brief/candidate-brief.md) and read it end
+   to end **before writing code**.
+4. Clone your private copy, then run `npm install && npm run dev`.
+5. Before submitting, invite the reviewer to your repo as a **Read**
+   collaborator (steps below).
+
+Submit the URL of your **private** repo (with the reviewer added as a read-only
+collaborator) and your deployed URL. The full submission checklist is in
+[§8 of the brief](brief/candidate-brief.md#8-deploy-and-submit).
+
 You'll get a seeded mock API, design tokens, and a low-fidelity wireframe — so
 you can spend your time on implementation, not on inventing requirements or
 data.
@@ -41,7 +58,7 @@ Included: TanStack Query, React Hook Form, Zod, MSW, Vitest, Testing Library,
 the design tokens, and a shared API client/types. **You own the feature
 structure** — add your own components, features, and tests.
 
-## Read in this order
+## Read in this order (after creating your private copy)
 
 1. [`brief/candidate-brief.md`](brief/candidate-brief.md) — scope, acceptance
    criteria, time plan, submission rules.
@@ -87,16 +104,31 @@ build. Full checklist and troubleshooting: [`DEPLOYMENT.md`](DEPLOYMENT.md).
 
 ## Submit
 
-We recommend a **private** repo:
+Create the repo in **your own GitHub account** (not the hiring company's
+organisation), and keep it **private**.
 
-1. Push to a private GitHub repo.
-2. Repo → **Settings → Collaborators → Add people** → add the reviewer handle
-   from your invitation email with **Read** access.
-3. Send the repo URL, confirmation of access, and the deployed URL.
+1. On the assignment repo, press **Use this template** → **Create a new
+   repository**. Choose **Private**, and create it under your personal account.
+2. Push your work there.
+3. Invite the reviewer:
+   - Repo → **Settings → Collaborators** (on some repos: **Manage access**).
+   - **Add people** → search for the reviewer handle in your invitation email.
+   - Select the account, choose **Read**, and add it.
+   - Tell us the repo URL so we can accept the invite.
+4. Send the repo URL, confirmation of access, and the deployed URL.
+
+**Can I invite an organisation?** No. GitHub collaborators are **user accounts**
+(or teams, for org-owned repos) — an organisation itself cannot be a
+collaborator. If your repo belongs to an org, the org must allow outside
+collaborators, and you add the individual reviewer account. The simplest path is
+a private repo under your personal account.
+
+You don't need to add the reviewer to any organisation; add them to the repo
+only.
 
 ## Deliverables
 
-- Private repo URL (recommended) with the reviewer added as a read-only
+- Private repo URL **in your own account** with the reviewer added as a read-only
   collaborator.
 - Deployed URL.
 - README covering setup, project structure, architecture decisions, deployment,

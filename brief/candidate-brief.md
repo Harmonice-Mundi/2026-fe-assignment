@@ -3,7 +3,12 @@
 **Role:** Frontend Developer
 **Timebox:** 2–3 hours of focused work (hard cap: 3 hours)
 **Stack:** React + TypeScript + Vite
-**Deliverable:** one deployed, single-page app + repo (private recommended) + README
+**Deliverable:** one deployed, single-page app + private repo + README
+
+> **Start here:** press **Use this template** on the assignment repo, choose
+> **Create a new repository**, and create your copy as **Private** in your own
+> GitHub account (not the hiring company's organisation). Work in your copy, not
+> in the template. Then read this brief end to end before coding.
 
 ---
 
@@ -336,18 +341,28 @@ Before submitting, verify the deployed URL:
 
 ### Submit
 
-We recommend a **private** GitHub repo so your work isn't publicly indexed.
+Use a **private** GitHub repo in **your own account** so your work isn't
+publicly indexed.
 
-1. Push your work to a private repo.
-2. Repo → **Settings → Collaborators → Add people** → add the reviewer handle
-   from your invitation email → **Read** access.
-3. Reply with:
+1. On the assignment repo, press **Use this template** → **Create a new
+   repository**. Set visibility to **Private** and create it under your personal
+   account. Do not push to the template or to the hiring company's organisation.
+2. Push your work to that private repo.
+3. Invite the reviewer to the **repo** (not your organisation):
+   - Repo → **Settings → Collaborators** (or **Manage access**).
+   - **Add people** → search for the reviewer handle in your invitation email.
+   - Choose **Read** access and add the account.
+4. Reply with:
    - The **private repo URL** (and confirmation the reviewer has access).
    - The **deployed URL**.
    - The README described below.
    - Your time log and AI disclosure (can live in the README).
 
-A public repo is acceptable if you prefer, but add the reviewer either way.
+GitHub collaborators are user accounts, not organisations. If your repo belongs
+to an org, allow outside collaborators and add the individual reviewer account.
+If you cannot use the template button, create an empty private repo under your
+personal account and push the starter files there. A public repo is acceptable
+if you prefer, but add the reviewer either way.
 
 ### README template
 
