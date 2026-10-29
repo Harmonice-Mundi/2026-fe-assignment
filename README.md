@@ -1,4 +1,4 @@
-# Meridian Banking — Frontend Take-Home
+# Meridian Banking — Frontend Interview Assignment
 
 Build a small banking app for one customer: a **dashboard** that shows her
 accounts and recent transactions, and a **three-step transfer** that sends money
