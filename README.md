@@ -18,8 +18,10 @@ to invent data.
 
 ## 1. Get started
 
-1. Press **Use this template** → **Create a new repository**. Make it
-   **Private** and put it under **your own GitHub account**.
+1. Open **https://github.com/Harmonice-Mundi/2026-fe-assignment/generate**
+   (or press **Use this template** → **Create a new repository**). Choose your
+   own account as the owner, keep it **Public**, and click **Create
+   repository**.
 2. Clone your copy and run:
 
    ```bash
@@ -101,10 +103,7 @@ explain.
    [`DEPLOYMENT.md`](DEPLOYMENT.md)). The deployed site must work with no local
    server.
 2. **Replace this README** with your own, using the outline below.
-3. **Invite the reviewer** to your private repo: **Settings → Collaborators →
-   Add people**, use the GitHub handle from your invitation email, and choose
-   **Read**. Invite the person, not an organisation.
-4. **Reply to the invitation email** with your repo URL and your deployed URL.
+3. **Reply to the invitation email** with your repo URL and your deployed URL.
 
 ### Your README
 
